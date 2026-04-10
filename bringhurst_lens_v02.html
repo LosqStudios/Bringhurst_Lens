@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bringhurst Lens</title>
+<style>
+  @font-face { font-family: 'AkiraExpanded'; src: url('https://raw.githubusercontent.com/LosqStudios/LS_Source/5f8a79cea96d8a67aef0252837e5131a1812ad1d/AkiraExpanded.woff2') format('woff2'); }
+  @font-face { font-family: 'BerkeleyMono'; src: url('https://raw.githubusercontent.com/LosqStudios/LS_Source/6301d0b738cb854921afc84c17df29d93db4d233/BerkeleyMono-Regular.woff2') format('woff2'); }
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=DM+Serif+Display:ital@0;1&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,700;1,6..96,400&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,700;1,9..144,400&family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&family=Bebas+Neue&family=Archivo+Black&family=Anton&family=Geist+Mono:wght@300;400;500&family=Archivo:wght@400;700&family=Nunito+Sans:wght@300;400;600&family=Inter:wght@300;400;500&family=Raleway:wght@700;800;900&family=Libre+Caslon+Display&family=Work+Sans:wght@300;400;500&display=swap');
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { background:#080808; }
+  body { min-height:100vh; color:#f0f0f0; padding:36px 28px; font-family:'BerkeleyMono',monospace; }
+
+  .bl-eyebrow { font-size:9px; letter-spacing:4px; color:#555; text-transform:uppercase; margin-bottom:10px; }
+  .bl-title { font-family:'AkiraExpanded',sans-serif; font-size:38px; line-height:1.1; color:#f0f0f0; text-transform:uppercase; }
+  .bl-title em { color:#666; font-style:normal; }
+  .bl-wordmark { font-size:9px; color:#2a2a2a; letter-spacing:3px; }
+  .bl-divider { width:48px; height:2px; background:#222; margin:20px 0 32px; }
+
+  .bl-nav { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:32px; }
+  .bl-nav-btn { padding:6px 14px; border:1px solid #222; border-radius:2px; background:transparent; color:#555; font-size:11px; letter-spacing:0.5px; cursor:pointer; transition:all 0.15s; font-family:'BerkeleyMono',monospace; }
+  .bl-nav-btn.active { border-color:#f0f0f0; background:#f0f0f0; color:#080808; }
+  .bl-nav-btn:hover:not(.active) { border-color:#444; color:#aaa; }
+  .bl-nav-btn.finder-btn { border-color:#333; color:#888; font-family:'BerkeleyMono',monospace; }
+  .bl-nav-btn.finder-btn:hover { border-color:#f0f0f0; color:#f0f0f0; }
+
+  .bl-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+  .bl-card { background:#0f0f0f; border:1px solid #1c1c1c; border-radius:4px; padding:24px; }
+  .bl-badge-row { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .bl-badge { font-size:9px; letter-spacing:2px; padding:4px 10px; border-radius:2px; font-family:'BerkeleyMono',monospace; }
+  .bl-tag { font-size:9px; color:#444; letter-spacing:1px; }
+  .bl-face-name { font-size:32px; color:#f0f0f0; margin-bottom:6px; line-height:1.1; }
+  .bl-classification { font-size:9px; color:#555; letter-spacing:2px; margin-bottom:14px; font-family:'BerkeleyMono',monospace; }
+  .bl-desc { font-size:12px; color:#666; line-height:1.8; font-family:'BerkeleyMono',monospace; }
+
+  .bl-specimen { background:#ffffff; border:1px solid #ddd; border-radius:4px; padding:28px; display:flex; flex-direction:column; gap:20px; justify-content:center; }
+  .bl-specimen-label { font-size:9px; color:#333; letter-spacing:3px; margin-bottom:6px; font-family:'BerkeleyMono',monospace; }
+  .bl-specimen-display { font-size:44px; line-height:1.1; color:#080808; }
+  .bl-specimen-body { font-size:14px; color:#222; line-height:1.8; }
+
+  .bl-panel { background:#0a0a0a; border:1px solid #1c1c1c; border-radius:4px; padding:22px 26px; margin-bottom:14px; }
+  .bl-panel-label { font-size:9px; letter-spacing:3px; color:#444; margin-bottom:14px; font-family:'BerkeleyMono',monospace; }
+  .bl-panel p { font-size:12px; color:#888; line-height:1.9; font-family:'BerkeleyMono',monospace; }
+  .bl-pair-chips { display:flex; gap:10px; margin-bottom:14px; }
+  .bl-pair-chip { flex:1; background:#111; border:1px solid #1c1c1c; border-radius:3px; padding:14px; }
+  .bl-pair-chip-name { font-size:18px; color:#ccc; margin-bottom:6px; line-height:1.1; }
+  .bl-pair-chip-role { font-size:9px; color:#444; letter-spacing:2px; font-family:'BerkeleyMono',monospace; }
+  .bl-rules { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
+  .bl-rules li { font-size:12px; color:#888; line-height:1.7; padding-left:20px; position:relative; font-family:'BerkeleyMono',monospace; }
+  .bl-rules li::before { content:'—'; position:absolute; left:0; color:#333; }
+
+  footer { margin-top:28px; padding-top:16px; border-top:1px solid #111; display:flex; justify-content:space-between; }
+  footer span { font-size:9px; color:#2a2a2a; letter-spacing:2px; font-family:'BerkeleyMono',monospace; }
+
+  /* — TYPE SYSTEM BUILDER — */
+  .bl-builder { background:#0a0a0a; border:1px solid #1c1c1c; border-radius:4px; padding:22px 26px; margin-bottom:14px; }
+  .bl-builder-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+  .bl-builder-label { font-size:9px; letter-spacing:3px; color:#444; font-family:'BerkeleyMono',monospace; }
+  .bl-builder-reset { font-size:9px; color:#333; letter-spacing:1px; font-family:'BerkeleyMono',monospace; background:none; border:1px solid #222; padding:4px 10px; border-radius:2px; cursor:pointer; transition:all 0.15s; }
+  .bl-builder-reset:hover { border-color:#555; color:#888; }
+  .bl-builder-slots { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:20px; }
+  .bl-builder-slot { background:#111; border:1px solid #1c1c1c; border-radius:3px; padding:14px; cursor:pointer; transition:all 0.15s; position:relative; }
+  .bl-builder-slot:hover { border-color:#444; }
+  .bl-builder-slot.active-slot { border-color:#f0f0f0; }
+  .bl-builder-slot-role { font-size:9px; letter-spacing:3px; color:#444; margin-bottom:8px; font-family:'BerkeleyMono',monospace; }
+  .bl-builder-slot-name { font-size:18px; color:#ccc; line-height:1.1; margin-bottom:4px; }
+  .bl-builder-slot-tag { font-size:9px; color:#333; letter-spacing:1px; font-family:'BerkeleyMono',monospace; }
+  .bl-builder-slot-swap { font-size:8px; color:#333; letter-spacing:1px; font-family:'BerkeleyMono',monospace; margin-top:8px; }
+  .bl-caps-btn { font-size:8px; letter-spacing:1px; font-family:'BerkeleyMono',monospace; background:none; border:1px solid #222; color:#333; padding:3px 8px; border-radius:2px; cursor:pointer; margin-top:6px; transition:all 0.15s; display:block; }
+  .bl-caps-btn:hover { border-color:#555; color:#888; }
+  .bl-caps-btn.on { border-color:#f0f0f0; background:#f0f0f0; color:#080808; }
+  .bl-preview { background:#ffffff; border:1px solid #e0e0e0; border-radius:3px; padding:28px 32px; }
+  .bl-preview-display { line-height:1.1; color:#080808; margin-bottom:16px; }
+  .bl-preview-body { color:#333; line-height:1.8; margin-bottom:16px; }
+  .bl-preview-ui { color:#666; letter-spacing:2px; text-transform:uppercase; }
+  .bl-builder-controls { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px; }
+  .bl-size-control { display:flex; flex-direction:column; gap:6px; }
+  .bl-size-label { font-size:9px; letter-spacing:3px; color:#444; font-family:'BerkeleyMono',monospace; display:flex; justify-content:space-between; }
+  .bl-size-label span { color:#666; }
+  .bl-slider { -webkit-appearance:none; appearance:none; width:100%; height:2px; background:#222; outline:none; border-radius:1px; }
+  .bl-slider::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:12px; height:12px; border-radius:50%; background:#f0f0f0; cursor:pointer; }
+  .bl-slider::-moz-range-thumb { width:12px; height:12px; border-radius:50%; background:#f0f0f0; cursor:pointer; border:none; }
+  .bl-preview [contenteditable] { outline:none; cursor:text; }
+  .bl-preview [contenteditable]:hover { background:rgba(0,0,0,0.03); border-radius:2px; }
+  .bl-preview.dark [contenteditable]:hover { background:rgba(255,255,255,0.05); border-radius:2px; }
+  .bl-edit-hint { font-size:9px; color:#bbb; letter-spacing:1px; font-family:'BerkeleyMono',monospace; margin-bottom:10px; text-align:right; }
+  .bl-preview.dark .bl-edit-hint { color:#444; }
+  .bl-preview.dark { background:#080808; border-color:#222; }
+  .bl-preview.dark .bl-preview-display { color:#f0f0f0; }
+  .bl-preview.dark .bl-preview-body { color:#ccc; }
+  .bl-preview.dark .bl-preview-ui { color:#888; }
+  .bl-preview.dark .bl-preview-divider { background:#222; }
+  .bl-dark-btn { font-size:8px; letter-spacing:1px; font-family:'BerkeleyMono',monospace; background:none; border:1px solid #222; color:#333; padding:3px 8px; border-radius:2px; cursor:pointer; transition:all 0.15s; }
+  .bl-dark-btn:hover { border-color:#555; color:#888; }
+  .bl-dark-btn.on { border-color:#f0f0f0; background:#f0f0f0; color:#080808; }
+  .bl-export-btn { width:100%; padding:12px; background:#f0f0f0; border:1px solid #f0f0f0; border-radius:3px; color:#080808; font-size:10px; letter-spacing:2px; cursor:pointer; font-family:'BerkeleyMono',monospace; transition:all 0.15s; margin-top:14px; font-weight:700; }
+  .bl-export-btn:hover { background:#ddd; border-color:#ddd; color:#080808; }
+  .bl-export-btn.copied { border-color:#4ade80; color:#4ade80; }
+  .bl-preview-divider { width:32px; height:1px; background:#ddd; margin-bottom:16px; }
+
+  /* — SLOT PICKER — */
+  .slot-picker-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:200; align-items:center; justify-content:center; }
+  .slot-picker-overlay.open { display:flex; }
+  .slot-picker-modal { background:#0c0c0c; border:1px solid #222; border-radius:6px; padding:28px; width:90%; max-width:560px; max-height:80vh; overflow-y:auto; }
+  .slot-picker-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+  .slot-picker-title { font-size:9px; letter-spacing:3px; color:#888; font-family:'BerkeleyMono',monospace; }
+  .slot-picker-close { background:none; border:1px solid #333; color:#555; font-size:11px; padding:4px 10px; cursor:pointer; border-radius:2px; font-family:'BerkeleyMono',monospace; }
+  .slot-picker-close:hover { border-color:#888; color:#aaa; }
+  .slot-picker-grid { display:flex; flex-direction:column; gap:8px; }
+  .slot-picker-item { display:flex; align-items:center; gap:14px; padding:12px 14px; border:1px solid #1c1c1c; border-radius:3px; cursor:pointer; transition:all 0.15s; background:#111; }
+  .slot-picker-item:hover { border-color:#444; }
+  .slot-picker-item.selected { border-color:#f0f0f0; }
+  .slot-picker-item-name { font-size:20px; color:#ccc; flex:1; line-height:1; }
+  .slot-picker-item-tag { font-size:9px; color:#444; letter-spacing:1px; font-family:'BerkeleyMono',monospace; }
+
+  /* — FINDER V2 — */
+  .finder-brief-wrap { position:relative; margin-bottom:20px; }
+  .finder-brief { width:100%; background:#111; border:1px solid #333; border-radius:3px; padding:14px 16px; color:#f0f0f0; font-size:13px; font-family:'BerkeleyMono',monospace; line-height:1.6; resize:none; min-height:80px; transition:border-color 0.15s; }
+  .finder-brief:focus { outline:none; border-color:#888; }
+  .finder-brief::placeholder { color:#333; }
+  .finder-brief-label { font-size:9px; letter-spacing:3px; color:#444; margin-bottom:10px; font-family:'BerkeleyMono',monospace; }
+  .finder-mode-toggle { display:flex; gap:8px; margin-bottom:24px; }
+  .finder-mode-btn { padding:5px 14px; border:1px solid #222; border-radius:2px; background:transparent; color:#555; font-size:9px; letter-spacing:1px; cursor:pointer; font-family:'BerkeleyMono',monospace; transition:all 0.15s; }
+  .finder-mode-btn.active { border-color:#f0f0f0; background:#f0f0f0; color:#080808; }
+
+  /* — FINDER MODAL — */
+  .finder-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:100; align-items:center; justify-content:center; }
+  .finder-overlay.open { display:flex; }
+  .finder-modal { background:#0c0c0c; border:1px solid #222; border-radius:6px; padding:32px; width:90%; max-width:640px; max-height:90vh; overflow-y:auto; }
+  .finder-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:28px; }
+  .finder-title { font-family:'AkiraExpanded',sans-serif; font-size:18px; color:#f0f0f0; text-transform:uppercase; line-height:1.1; }
+  .finder-title em { color:#555; font-style:normal; }
+  .finder-close { background:none; border:1px solid #333; color:#555; font-size:11px; padding:4px 10px; cursor:pointer; border-radius:2px; font-family:'BerkeleyMono',monospace; transition:all 0.15s; }
+  .finder-close:hover { border-color:#888; color:#aaa; }
+
+  .finder-section { margin-bottom:24px; }
+  .finder-section-label { font-size:9px; letter-spacing:3px; color:#444; margin-bottom:12px; font-family:'BerkeleyMono',monospace; }
+  .finder-chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .finder-chip { padding:6px 14px; border:1px solid #222; border-radius:2px; background:transparent; color:#555; font-size:10px; letter-spacing:1px; cursor:pointer; font-family:'BerkeleyMono',monospace; transition:all 0.15s; }
+  .finder-chip:hover { border-color:#555; color:#aaa; }
+  .finder-chip.selected { border-color:#f0f0f0; background:#f0f0f0; color:#080808; }
+
+  .finder-action { margin-top:28px; display:flex; justify-content:flex-end; }
+  .finder-go { padding:10px 24px; background:#f0f0f0; border:none; color:#080808; font-size:10px; letter-spacing:2px; cursor:pointer; font-family:'BerkeleyMono',monospace; border-radius:2px; transition:all 0.15s; }
+  .finder-go:hover { background:#ccc; }
+  .finder-go:disabled { background:#222; color:#444; cursor:not-allowed; }
+
+  /* — RESULTS — */
+  .finder-results { margin-top:24px; border-top:1px solid #1a1a1a; padding-top:24px; display:none; }
+  .finder-results.open { display:block; }
+  .finder-loading { font-size:11px; color:#444; font-family:'BerkeleyMono',monospace; letter-spacing:1px; }
+  .finder-loading span { animation:blink 1s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  .finder-result-card { background:#111; border:1px solid #1c1c1c; border-radius:4px; padding:20px; margin-bottom:12px; cursor:pointer; transition:border-color 0.15s; }
+  .finder-result-card:hover { border-color:#444; }
+  .finder-result-rank { font-size:9px; color:#444; letter-spacing:3px; margin-bottom:8px; font-family:'BerkeleyMono',monospace; }
+  .finder-result-name { font-size:28px; color:#f0f0f0; margin-bottom:8px; line-height:1.1; }
+  .finder-result-tag { font-size:9px; letter-spacing:2px; padding:3px 8px; border-radius:2px; margin-bottom:12px; display:inline-block; font-family:'BerkeleyMono',monospace; }
+  .finder-result-rationale { font-size:12px; color:#777; line-height:1.8; font-family:'BerkeleyMono',monospace; }
+  .finder-result-hint { font-size:9px; color:#333; margin-top:10px; letter-spacing:1px; font-family:'BerkeleyMono',monospace; }
+
+  @media(max-width:600px){ .bl-title{font-size:24px} .bl-grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div style="max-width:860px;margin:0 auto">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div>
+      <div class="bl-eyebrow">2025 – 2026 Type Intelligence</div>
+      <div class="bl-title">Trending<br><em>Typefaces</em></div>
+    </div>
+    <div style="text-align:right;padding-top:8px">
+      <img src="https://raw.githubusercontent.com/LosqStudios/LS_Source/f7c90a5/LosqStudios_SerifBox_White_V01.png" alt="Losq Studios" style="width:48px;height:auto;display:block;margin-left:auto;opacity:0.9;" />
+    </div>
+  </div>
+  <div class="bl-divider"></div>
+  <div class="bl-nav" id="bl-nav"></div>
+  <div class="bl-grid">
+    <div class="bl-card">
+      <div class="bl-badge-row"><span class="bl-badge" id="bl-badge"></span><span class="bl-tag" id="bl-tag"></span></div>
+      <div class="bl-face-name" id="bl-face-name"></div>
+      <div class="bl-classification" id="bl-class"></div>
+      <p class="bl-desc" id="bl-desc"></p>
+    </div>
+    <div class="bl-specimen" id="bl-specimen"></div>
+  </div>
+  <div class="bl-panel" id="bl-pairing-panel"><div class="bl-panel-label">RECOMMENDED PAIRINGS</div><div class="bl-pair-chips" id="bl-pair-chips"></div><p id="bl-pair-note"></p></div>
+  <div class="bl-panel" id="bl-bringhurst-panel"><div class="bl-panel-label">BRINGHURST LENS</div><ul class="bl-rules" id="bl-rules"></ul></div>
+  <div class="bl-panel" id="bl-usage-panel"><div class="bl-panel-label">BRAND USAGE</div><p id="bl-usage"></p></div>
+  <div class="bl-builder" id="bl-builder">
+    <div class="bl-builder-header">
+      <div class="bl-builder-label">TYPE SYSTEM BUILDER</div>
+      <button class="bl-builder-reset" onclick="resetBuilder()">RESET</button>
+    </div>
+    <div class="bl-builder-slots">
+      <div class="bl-builder-slot" id="slot-display" onclick="openSlotPicker('display')">
+        <div class="bl-builder-slot-role">DISPLAY</div>
+        <div class="bl-builder-slot-name" id="slot-display-name">Canela</div>
+        <div class="bl-builder-slot-tag" id="slot-display-tag">Editorial Serif</div>
+        <div class="bl-builder-slot-swap">CLICK TO SWAP</div>
+        <button class="bl-caps-btn" id="caps-display" onclick="toggleCaps(event,'display')">ALL CAPS</button>
+      </div>
+      <div class="bl-builder-slot" id="slot-body" onclick="openSlotPicker('body')">
+        <div class="bl-builder-slot-role">BODY</div>
+        <div class="bl-builder-slot-name" id="slot-body-name">Graphik</div>
+        <div class="bl-builder-slot-tag" id="slot-body-tag">Designer's Grotesque</div>
+        <div class="bl-builder-slot-swap">CLICK TO SWAP</div>
+        <button class="bl-caps-btn" id="caps-body" onclick="toggleCaps(event,'body')">ALL CAPS</button>
+      </div>
+      <div class="bl-builder-slot" id="slot-ui" onclick="openSlotPicker('ui')">
+        <div class="bl-builder-slot-role">UI / LABEL</div>
+        <div class="bl-builder-slot-name" id="slot-ui-name">Geist Mono</div>
+        <div class="bl-builder-slot-tag" id="slot-ui-tag">Utilitarian Mono</div>
+        <div class="bl-builder-slot-swap">CLICK TO SWAP</div>
+        <button class="bl-caps-btn" id="caps-ui" onclick="toggleCaps(event,'ui')">ALL CAPS</button>
+      </div>
+    </div>
+    <!-- SIZE CONTROLS -->
+    <div class="bl-builder-controls" id="bl-size-controls">
+      <div class="bl-size-control">
+        <div class="bl-size-label">DISPLAY <span id="size-display-val">36px</span></div>
+        <input type="range" class="bl-slider" id="slider-display" min="18" max="96" value="36" oninput="updateSize('display',this.value)">
+      </div>
+      <div class="bl-size-control">
+        <div class="bl-size-label">BODY <span id="size-body-val">15px</span></div>
+        <input type="range" class="bl-slider" id="slider-body" min="10" max="32" value="15" oninput="updateSize('body',this.value)">
+      </div>
+      <div class="bl-size-control">
+        <div class="bl-size-label">UI <span id="size-ui-val">9px</span></div>
+        <input type="range" class="bl-slider" id="slider-ui" min="7" max="18" value="9" oninput="updateSize('ui',this.value)">
+      </div>
+    </div>
+
+    <div class="bl-preview" id="bl-preview" style="position:relative;">
+      <div class="bl-edit-hint">CLICK TEXT TO EDIT</div>
+      <button class="bl-dark-btn" id="bl-dark-btn" onclick="togglePreviewDark()" style="position:absolute;bottom:12px;right:12px;">DARK</button>
+      <div class="bl-preview-display" id="preview-display" style="font-size:36px" contenteditable="true" spellcheck="false">The Quick Brown Fox</div>
+      <div class="bl-preview-divider"></div>
+      <div class="bl-preview-body" id="preview-body" style="font-size:15px" contenteditable="true" spellcheck="false">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</div>
+      <div class="bl-preview-divider"></div>
+      <div class="bl-preview-ui" id="preview-ui" style="font-size:9px" contenteditable="true" spellcheck="false">Label / Caption / UI Text</div>
+    </div>
+    <button class="bl-export-btn" id="bl-export-btn" onclick="exportCSS()">EXPORT CSS VARIABLES</button>
+  </div>
+
+  <footer><span>SOURCES: KLIM · COMMERCIAL TYPE · PANGRAM PANGRAM · GRILLI TYPE · DINAMO</span><span id="bl-counter"></span></footer>
+</div>
+
+<!-- SLOT PICKER -->
+<div class="slot-picker-overlay" id="slot-picker-overlay">
+  <div class="slot-picker-modal">
+    <div class="slot-picker-header">
+      <div class="slot-picker-title" id="slot-picker-title">SELECT DISPLAY FACE</div>
+      <button class="slot-picker-close" onclick="closeSlotPicker()">CLOSE</button>
+    </div>
+    <div class="slot-picker-grid" id="slot-picker-grid"></div>
+  </div>
+</div>
+
+<!-- FINDER MODAL -->
+<div class="finder-overlay" id="finder-overlay">
+  <div class="finder-modal">
+    <div class="finder-header">
+      <div>
+        <div class="finder-title">Find Your<br><em>Type</em></div>
+        <div style="font-size:9px;color:#444;letter-spacing:1px;font-family:'BerkeleyMono',monospace;margin-top:6px">DESCRIBE YOUR PROJECT OR USE KEYWORDS</div>
+      </div>
+      <button class="finder-close" onclick="closeFinder()">CLOSE</button>
+    </div>
+
+    <!-- MODE TOGGLE -->
+    <div class="finder-mode-toggle">
+      <button class="finder-mode-btn" id="mode-btn-keywords" onclick="setFinderMode('keywords')">KEYWORDS</button>
+      <button class="finder-mode-btn active" id="mode-btn-brief" onclick="setFinderMode('brief')">PLAIN LANGUAGE</button>
+    </div>
+
+    <!-- PLAIN LANGUAGE INPUT -->
+    <div id="finder-brief-section" style="display:block">
+      <div class="finder-brief-label">DESCRIBE YOUR PROJECT</div>
+      <textarea class="finder-brief" id="finder-brief-input" placeholder="Describe your project — e.g. A premium gaming studio that wants to feel aggressive and cinematic, or a luxury fashion brand that needs to feel both editorial and warm..." rows="3"></textarea>
+    </div>
+
+    <!-- KEYWORD SECTIONS -->
+    <div id="finder-keywords-section" style="display:none">
+    <div class="finder-section">
+      <div class="finder-section-label">FEELING</div>
+      <div class="finder-chips" id="chips-feeling">
+        <button class="finder-chip" data-group="feeling" data-val="Editorial">Editorial</button>
+        <button class="finder-chip" data-group="feeling" data-val="Expressive">Expressive</button>
+        <button class="finder-chip" data-group="feeling" data-val="Authoritative">Authoritative</button>
+        <button class="finder-chip" data-group="feeling" data-val="Warm">Warm</button>
+        <button class="finder-chip" data-group="feeling" data-val="Cold">Cold</button>
+        <button class="finder-chip" data-group="feeling" data-val="Cinematic">Cinematic</button>
+        <button class="finder-chip" data-group="feeling" data-val="Literary">Literary</button>
+        <button class="finder-chip" data-group="feeling" data-val="Premium / Luxury">Premium / Luxury</button>
+        <button class="finder-chip" data-group="feeling" data-val="Professional">Professional</button>
+        <button class="finder-chip" data-group="feeling" data-val="Playful">Playful</button>
+        <button class="finder-chip" data-group="feeling" data-val="Modern">Modern</button>
+      </div>
+    </div>
+
+    <div class="finder-section">
+      <div class="finder-section-label">CONTEXT</div>
+      <div class="finder-chips" id="chips-context">
+        <button class="finder-chip" data-group="context" data-val="Brand Identity">Brand Identity</button>
+        <button class="finder-chip" data-group="context" data-val="Publication">Publication</button>
+        <button class="finder-chip" data-group="context" data-val="Entertainment">Entertainment</button>
+        <button class="finder-chip" data-group="context" data-val="Fashion">Fashion</button>
+        <button class="finder-chip" data-group="context" data-val="Gaming">Gaming</button>
+        <button class="finder-chip" data-group="context" data-val="Motion / Title Design">Motion / Title Design</button>
+        <button class="finder-chip" data-group="context" data-val="UI System">UI System</button>
+        <button class="finder-chip" data-group="context" data-val="Cultural Institution">Cultural Institution</button>
+      </div>
+    </div>
+
+    <div class="finder-section">
+      <div class="finder-section-label">WEIGHT</div>
+      <div class="finder-chips" id="chips-weight">
+        <button class="finder-chip" data-group="weight" data-val="Light Touch">Light Touch</button>
+        <button class="finder-chip" data-group="weight" data-val="Balanced">Balanced</button>
+        <button class="finder-chip" data-group="weight" data-val="Heavy Impact">Heavy Impact</button>
+      </div>
+    </div>
+
+    </div><!-- end keywords section -->
+
+    <div class="finder-action">
+      <button class="finder-go" id="finder-go" onclick="runFinder()" disabled>FIND MY TYPE</button>
+    </div>
+
+    <div class="finder-results" id="finder-results">
+      <div class="finder-section-label" style="margin-bottom:16px">RECOMMENDATIONS</div>
+      <div id="finder-results-inner"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const fontMap={"Canela":"'DM Serif Display',serif","Editorial New":"'Cormorant Garamond',serif","Tiempos":"'Libre Baskerville',serif","Signifier":"'EB Garamond',serif","Domaine Display":"'Bodoni Moda',serif","Neue Haas Grotesk":"'DM Sans',sans-serif","Swear Display":"'Fraunces',serif","Freight Display":"'Lora',serif","GT Sectra":"'Playfair Display',serif","Graphik":"'DM Sans',sans-serif","Pitch":"'Space Mono',monospace","Druk":"'Bebas Neue',sans-serif","GT Ultra":"'Archivo Black',sans-serif","Obviously":"'Anton',sans-serif","Tusker Grotesk":"'Bebas Neue',sans-serif","Geist Mono":"'Geist Mono',monospace"};
+
+const faces=[
+{name:"Canela",tag:"Editorial Serif",trend:"↑ Strong",trendColor:"#4ade80",classification:"TRANSITIONAL SERIF — DISPLAY",desc:"Organically drawn high-contrast serif from Commercial Type. Bridges classical proportion with contemporary warmth. The defining editorial serif of 2024–2026 — culture publications, premium identity, anything that needs to feel considered.",specimen:{display:"Canela",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Graphik",role:"BODY / CAPTION"},{name:"Neue Haas Grotesk",role:"UI / LABEL"}],pairNote:"Canela's organic warmth needs a clean, neutral grotesque to breathe. Graphik's almost-invisible functionality lets Canela own the room without competition.",rules:["High contrast stroke modulation follows classical oldstyle principles — Bringhurst traces this to 15th century Venetian cutters","Optical size should be respected — set Canela large; never below 24pt for display intent","Generous leading (1.4–1.5×) gives descenders room — tight leading destroys the letterform's rhythm"],usage:"Vogue, The New Yorker digital, Arc Browser, Loewe, Bottega Veneta. Luxury fashion, premium editorial, cultural institutions. Any brand that reads before it sells.",accentColor:"#4ade80"},
+{name:"Editorial New",tag:"Expressive Serif",trend:"↑ Breakout",trendColor:"#f472b6",classification:"DISPLAY SERIF — EXPRESSIVE",desc:"Pangram Pangram's breakout typeface. Extreme contrast, long descenders, italic forms that feel alive. The typeface of fashion brands, culture publications, and anything that needs to feel expensive, urgent, and editorial.",specimen:{display:"Editorial",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Neue Haas Grotesk",role:"BODY / CAPTION"},{name:"Graphik",role:"UI / LABEL"}],pairNote:"Editorial New's extreme expressiveness needs the quietest possible sans companion. Neue Haas Grotesk's neutrality is its greatest asset here — it disappears so Editorial can perform.",rules:["Extreme x-height contrast places this in Bringhurst's 'glyphic' category — letterforms that carry visual weight beyond their size","The italic is not an afterthought — it was designed as a primary voice, not merely for emphasis","Tracking should be tight to negative at display sizes — loose tracking destroys the intended color of the text"],usage:"AnOther Magazine, Highsnobiety, Jacquemus, Dior digital. Culture, fashion, luxury. The typeface of things that cost more than they say.",accentColor:"#f472b6"},
+{name:"GT Sectra",tag:"Cultural Serif",trend:"↑ Strong",trendColor:"#34d399",classification:"EDITORIAL SERIF — NEWSPAPER & MAGAZINE",desc:"Grilli Type's definitive editorial serif. Born from the tradition of newspaper and magazine typography — ink traps, strong stroke contrast, and a rhythm built for column-width reading. The serif of cultural journalism and serious publications.",specimen:{display:"Sectra",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Graphik",role:"BODY SANS"},{name:"Neue Haas Grotesk",role:"CAPTION / UI"}],pairNote:"GT Sectra earns its place in publication systems. Graphik's functional neutrality keeps the sans register clean while Sectra carries the editorial voice.",rules:["Ink traps at stroke junctions are a direct inheritance from hot-metal newspaper type — functional at small sizes, beautiful at large ones","Bringhurst prizes typefaces designed with a specific use in mind — GT Sectra was built for reading at column widths, and it shows","The display cuts carry more contrast than the text cuts — choose the right optical size or the relationship between weights breaks down"],usage:"The Guardian, Die Zeit, various cultural and political magazines. Streaming services and entertainment brands seeking editorial authority.",accentColor:"#34d399"},
+{name:"Tiempos",tag:"Text Serif",trend:"↑ Rising",trendColor:"#60a5fa",classification:"HUMANIST SERIF — TEXT",desc:"Klim's workhorse text serif. Drawn for demanding reading environments — high legibility, strong character at small sizes, elegant at display. The editorial body text of choice in 2026 for long-form and print-adjacent work.",specimen:{display:"Tiempos",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Graphik",role:"UI / LABEL / CAPTION"},{name:"Neue Haas Grotesk",role:"SUBHEADING"}],pairNote:"Tiempos in the body, a clean grotesque for navigation and labels. The serif carries the reading weight; the sans handles the system.",rules:["Humanist serifs in Bringhurst's taxonomy draw from Renaissance models — the pen is always implied in the stroke","Optimised for reading at 9–14pt — using Tiempos Text at display sizes requires switching to Tiempos Headline","The italic is a true italic, not an oblique — it changes letterform construction entirely, not just the angle"],usage:"The Atlantic, The New York Times (adjacent), Substack publications, longform digital journalism.",accentColor:"#60a5fa"},
+{name:"Signifier",tag:"Literary Serif",trend:"→ Emerging",trendColor:"#f87171",classification:"HIGH-CONTRAST SERIF — DISPLAY & TEXT",desc:"Klim's darkest, most literary typeface. High contrast, strong ink traps, designed for printing and screen alike. Signals intellectual weight, depth, and the kind of seriousness that doesn't need to announce itself.",specimen:{display:"Signifier",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Neue Haas Grotesk",role:"BODY / SYSTEM"},{name:"Graphik",role:"UI / FUNCTIONAL"}],pairNote:"Signifier's literary intensity needs a completely neutral sans to breathe. Any sans with personality competes — only true neutrals serve it well.",rules:["High stroke contrast places Signifier in the tradition of late 18th century modern faces — Bodoni and Didot are the ancestors","Ink traps are a functional design decision — compensating for ink spread in print, creating visual texture on screen","Bringhurst notes extreme contrast serifs carry historical associations with authority and permanence — use this intentionally"],usage:"Literary publishers, law firms, finance brands, The Guardian (adjacent). Music label identity, film and streaming title design.",accentColor:"#f87171"},
+{name:"Domaine Display",tag:"Sharp Serif",trend:"↑ Strong",trendColor:"#e879f9",classification:"CONTEMPORARY SERIF — DISPLAY",desc:"Klim's sharpest, most fashion-forward serif. High contrast, wedge serifs, deliberate tension. The typeface of premium fashion brands, luxury e-commerce, and entertainment brands that want to feel expensive without being obvious about it.",specimen:{display:"Domaine",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Graphik",role:"BODY / UI"},{name:"Neue Haas Grotesk",role:"CAPTION / SYSTEM"}],pairNote:"Domaine's sharpness demands a completely neutral grotesque. Graphik disappears into the background letting Domaine lead with full authority.",rules:["Wedge serifs trace back to lapidary inscriptions — letters carved in stone — giving Domaine a permanence bracketed serifs lack","Bringhurst emphasises that display faces must earn their size — Domaine earns it through visual authority, not decoration","The contrast between thick and thin strokes is extreme — never set smaller than 18pt or the thin strokes become invisible"],usage:"Jacquemus, high fashion e-commerce, premium DTC brands, luxury hospitality. The visual language of expensive things that know they're expensive.",accentColor:"#e879f9"},
+{name:"Swear Display",tag:"Breakout Serif",trend:"↑ Breakout",trendColor:"#2dd4bf",classification:"EXPRESSIVE SERIF — DISPLAY",desc:"The most talked-about new serif of 2025. Unusual proportions, unexpected details, a typeface that feels entirely contemporary while drawing on deep historical roots. Owns a room.",specimen:{display:"Swear",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Neue Haas Grotesk",role:"BODY / SYSTEM"},{name:"Graphik",role:"UI / LABEL"}],pairNote:"Swear Display's unusual proportions need a sans that won't compete. Neue Haas Grotesk's total neutrality creates the visual restraint Swear's expressiveness requires.",rules:["Deliberate irregularity is a post-digital design choice — Bringhurst's framework must be stretched to accommodate typefaces that use historical knowledge to make new things","The contrast is high but the letterforms are not classical — this places Swear in a genuinely new typographic category","Use large and with intention — this typeface makes a statement every time it appears"],usage:"Leading creative agencies, independent publications, brand identity for culturally forward clients. Entertainment and gaming brands.",accentColor:"#2dd4bf"},
+{name:"Freight Display",tag:"Cinematic Serif",trend:"↑ Strong",trendColor:"#fde68a",classification:"OLDSTYLE SERIF — DISPLAY",desc:"Joshua Darden's refined display serif from the Freight superfamily. Cinematic, high contrast, deeply elegant. The workhorse of premium brand identity, editorial design, and any project that needs to feel like a title card.",specimen:{display:"Freight",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Graphik",role:"BODY / SYSTEM"},{name:"Neue Haas Grotesk",role:"UI / LABEL"}],pairNote:"Freight Display's warmth and classical proportions pair naturally with cold neutrals. The contrast between Freight's humanity and the grotesque's systemisation is productive tension.",rules:["Oldstyle serifs in Bringhurst's classification are the most humanist — stroke modulation mirrors the movement of a broad-nib pen","The Freight superfamily's range from micro to display sizes makes it genuinely versatile — rare in expressive serifs","Generous letter-spacing at display sizes respects the letterform's classical origins"],usage:"Premium brand identity, film and streaming title design, hospitality, financial services, editorial design.",accentColor:"#fde68a"},
+{name:"Cormorant Garamond",tag:"Literary Revival",trend:"↑ Strong",trendColor:"#fca5a5",classification:"OLDSTYLE SERIF — GARAMOND REVIVAL",desc:"Christian Thalmann's meticulous free revival of Claude Garamond's 16th century types. Extreme stroke contrast, long elegant descenders, and genuine historical fidelity. The definitive choice for literary publishing, poetry, and any brand that wants to feel like it has been around for centuries.",specimen:{display:"Cormorant",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Neue Haas Grotesk",role:"UI / CAPTION"},{name:"Graphik",role:"BODY SANS"}],pairNote:"Cormorant Garamond's historical depth needs a completely modern grotesque as counterpoint. The tension between 16th century letterforms and a contemporary sans is exactly right.",rules:["Garamond types are the foundation of Bringhurst's humanist serif classification -- the broad-nib pen is more present here than in almost any other face","The extreme thin strokes demand large sizes and careful printing conditions -- Cormorant breaks at small sizes because it was never intended for them","Stroke contrast this extreme carries the weight of five centuries of printing history -- use it with that awareness"],usage:"Literary publishers, poetry collections, luxury perfume and fashion, law firms, any brand that wants to signal depth, permanence, and cultural seriousness.",accentColor:"#fca5a5"},
+{name:"GT Alpina",tag:"Retro Serif",trend:"↑ Rising",trendColor:"#fb923c",classification:"TRANSITIONAL SERIF -- RETRO INFLECTED",desc:"Grilli Type's warmest, most nostalgic serif. Where GT Sectra is sharp and contemporary, GT Alpina is soft, retro-inflected, and warm. Rooted in early 20th century magazine typography with a distinctly modern sensibility. The serif for lifestyle, food, and cultural brands that want warmth without sentimentality.",specimen:{display:"Alpina",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"GT America",role:"BODY / SYSTEM"},{name:"Neue Haas Grotesk",role:"UI / CAPTION"}],pairNote:"GT Alpina and GT America are both Grilli Type -- a complete Grilli system pairing that has genuine foundry coherence. Alpina's warmth and America's width create a full-range type system.",rules:["Retro-inflected serifs occupy a specific cultural position in Bringhurst's framework -- they evoke historical printing without being historically accurate","The optical size variants are significant -- GT Alpina Standard differs meaningfully from GT Alpina Condensed and GT Alpina Display","Works best where warmth is the primary signal -- brands that need authority should reach for GT Sectra; brands that need warmth reach for GT Alpina"],usage:"Lifestyle publications, food and beverage brands, hospitality, cultural institutions, independent bookshops. Any brand that wants a serif with soul.",accentColor:"#fb923c"},
+{name:"Neue Haas Grotesk",tag:"The Source",trend:"↑ Classic",trendColor:"#94a3b8",classification:"NEO-GROTESQUE SANS — THE ORIGINAL",desc:"The typeface Helvetica was based on, properly digitised. Warmer, more proportionally correct, and more historically faithful than Helvetica Neue. Using this over Helvetica is a message — to those who notice.",specimen:{display:"Haas",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Editorial New",role:"DISPLAY / EDITORIAL"},{name:"Signifier",role:"LITERARY DISPLAY"}],pairNote:"Neue Haas Grotesk's total neutrality makes it the ideal counterpart to the most expressive serifs. It asks nothing — allowing the serif to say everything.",rules:["This is the source — Helvetica was an adaptation of Neue Haas Grotesk, not the original design","Bringhurst's most pointed criticism of Helvetica is its digitisation — Neue Haas Grotesk corrects the proportional distortions","The true italic (not oblique) distinguishes it from most grotesque revivals — a detail that matters to anyone who cares about type"],usage:"Design studios, cultural institutions, typographers, brands that want to signal they know the difference.",accentColor:"#94a3b8"},
+{name:"Graphik",tag:"Designer's Grotesque",trend:"↑ Dominant",trendColor:"#fb923c",classification:"GEOMETRIC GROTESQUE — TEXT & DISPLAY",desc:"Commercial Type's defining grotesque. Sits between geometric precision and humanist warmth — more characterful than Helvetica, more disciplined than Futura. The working designer's sans-serif.",specimen:{display:"Graphik",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Canela",role:"DISPLAY / HERO"},{name:"GT Sectra",role:"EDITORIAL BODY"}],pairNote:"Graphik and Canela are both Commercial Type — shared foundry sensibility creates coherence. Graphik's discipline gives Canela's expressiveness somewhere to land.",rules:["Bringhurst values grotesques that don't perform neutrality while being anything but — Graphik is genuinely neutral, which is harder than it looks","The wide weight range from Thin to Super makes it one of the most versatile grotesques available","Excels in multi-language settings — careful glyph design across extended character sets"],usage:"Museum identity, cultural institutions, entertainment brands, independent publications, serious editorial design.",accentColor:"#fb923c"},
+{name:"LL Unica77",tag:"Swiss Warmth",trend:"↑ Rising",trendColor:"#67e8f9",classification:"NEO-GROTESQUE SANS — HUMANIST INFLECTED",desc:"Lineto's revival of Unica, the 1980 typeface that attempted to reconcile Helvetica and Univers. More warmth than either parent, less cold than pure Swiss grotesques. The cultural institution grotesque of choice for designers who find Neue Haas too clinical.",specimen:{display:"Unica77",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"GT Sectra",role:"EDITORIAL DISPLAY"},{name:"Signifier",role:"LITERARY DISPLAY"}],pairNote:"LL Unica77's warmth gives it more personality than Neue Haas Grotesk, making it a livelier companion for literary serifs. It holds its own rather than simply disappearing.",rules:["Unica was designed to be the definitive synthesis of Swiss grotesque traditions -- Bringhurst would place it firmly in the rationalist stream but with humanist concessions","The revival corrects digitisation artefacts from the original -- Lineto's attention to the source material is the same rigour Bringhurst applies to historical research","Works best where Neue Haas Grotesk feels too cold -- Unica77 carries Swiss authority with more approachable texture"],usage:"MoMA, cultural institutions, design museums, independent studios. Brands that want Swiss credibility with more character than Helvetica allows.",accentColor:"#67e8f9"},
+{name:"Maison Neue",tag:"Warm Grotesque",trend:"↑ Rising",trendColor:"#c4b5fd",classification:"GROTESQUE SANS — HUMANIST WARM",desc:"Milieu Grotesque's considered, warm sans-serif. Sits between the cold neutrality of Swiss grotesques and the overt personality of humanist sans. The choice for brands that find Graphik too corporate and Neue Haas too cold. Quiet confidence without Swiss rigidity.",specimen:{display:"Maison",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Canela",role:"EDITORIAL DISPLAY"},{name:"Tiempos",role:"LONG-FORM BODY"}],pairNote:"Maison Neue's warmth pairs naturally with organic serifs. Where Graphik disappears, Maison Neue participates -- it has just enough character to complement rather than compete.",rules:["Warm grotesques occupy a specific position in Bringhurst's taxonomy -- between the pure functionalism of the Swiss stream and the calligraphic influence of humanist sans","The letter spacing is generous by default -- tightening it changes the personality considerably, from open and approachable to more considered and editorial","Most effective at text sizes where the warmth reads as comfort; at display sizes it needs careful tracking to avoid feeling soft"],usage:"Independent creative studios, cultural brands, lifestyle publications, hospitality, any brand that wants a grotesque with soul rather than system.",accentColor:"#c4b5fd"},
+{name:"PP Neue Montreal",tag:"Studio Grotesque",trend:"↑ Dominant",trendColor:"#38bdf8",classification:"GEOMETRIC GROTESQUE — INDEPENDENT STUDIO",desc:"Pangram Pangram's defining grotesque. The most-used sans in independent studio and startup design right now -- a cleaner, more characterful alternative to Graphik that signals cultural awareness without coldness. Where Graphik is the designer's workhorse, PP Neue Montreal is the designer's statement.",specimen:{display:"Montreal",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Editorial New",role:"DISPLAY / EDITORIAL"},{name:"Canela",role:"EDITORIAL HERO"}],pairNote:"PP Neue Montreal and Editorial New are both Pangram Pangram -- foundry coherence that creates an instantly recognisable design language. The grotesque discipline of Montreal lets Editorial New perform.",rules:["Sits in the geometric grotesque tradition but with more personality than Helvetica and less warmth than Graphik -- it occupies a distinct middle position","Bringhurst values type that serves without subservience -- PP Neue Montreal has enough character to signal authorship while remaining functional","The extensive weight range and variable font version make it genuinely versatile across display and text applications"],usage:"Independent design studios, tech startups, cultural brands, music and entertainment. The defining grotesque of the post-SaaS design generation.",accentColor:"#38bdf8"},
+{name:"Aperçu",tag:"Cultural Grotesque",trend:"↑ Strong",trendColor:"#a78bfa",classification:"GROTESQUE SANS -- HISTORICALLY SYNTHESISED",desc:"Colophon Foundry's synthesis of four classic grotesques -- Johnston, Gill Sans, Neuzeit and Franklin Gothic. More historically grounded and characterful than Graphik, less cold than Neue Haas. Used by MoMA, Burberry, and the Walker Art Center. The grotesque of cultural institutions that want both legibility and personality.",specimen:{display:"Apercu",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Canela",role:"DISPLAY / EDITORIAL"},{name:"GT Sectra",role:"EDITORIAL BODY"}],pairNote:"Apercu's historical groundedness pairs naturally with editorially-minded serifs. Its synthesis of grotesque traditions creates a sans that complements serifs without competing with them.",rules:["Synthesised grotesques carry the weight of multiple historical references simultaneously -- Bringhurst would recognise the Johnston and Gill Sans DNA immediately","The Apercu Mono companion makes it a strong system choice -- having a proportional and monospaced variant from the same family is rare and useful","More characterful than Graphik at the same functional level -- the historical references give it texture that pure geometric grotesques lack"],usage:"MoMA, Burberry, Walker Art Center, cultural institutions, architecture firms, design-literate brands. The grotesque that signals genuine historical awareness.",accentColor:"#a78bfa"},
+{name:"GT America",tag:"American Gothic",trend:"↑ Rising",trendColor:"#86efac",classification:"GROTESQUE SANS — AMERICAN AND EUROPEAN HYBRID",desc:"Grilli Type's bridge between 19th century American wood type grotesques and 20th century European neo-grotesque traditions. Wider, more architectural, and more confident than Graphik or Neue Haas. The grotesque for brands that need scale and presence.",specimen:{display:"America",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Canela",role:"EDITORIAL CONTRAST"},{name:"GT Sectra",role:"BODY / EDITORIAL"}],pairNote:"GT America's wide American gothic energy creates a different kind of contrast with editorial serifs than Swiss grotesques do. More expansive, less clinical.",rules:["American gothic types in Bringhurst's framework carry different cultural weight than Swiss grotesques -- wider, more vernacular, rooted in commercial printing rather than modernist theory","The 84 styles including mono and condensed variants make GT America one of the most comprehensive grotesque families available","Excels at large sizes where the wide proportions read as architectural rather than merely functional"],usage:"Cultural institutions, Walker Art Center, architectural and design firms, entertainment brands, publications that want a distinctly American typographic voice.",accentColor:"#86efac"},
+{name:"Geist Mono",tag:"Utilitarian Mono",trend:"↑ Rising",trendColor:"#a3e635",classification:"MONOSPACE SANS — UI & SYSTEM",desc:"Designed by Vercel in collaboration with Basement Studio. Cold, systematic, and precise — Swiss design principles applied to fixed-width infrastructure. Where Berkeley Mono has authorship, Geist Mono has intent.",specimen:{display:"Geist",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Neue Haas Grotesk",role:"DISPLAY / HEADING"},{name:"GT Sectra",role:"EDITORIAL BODY"}],pairNote:"Geist Mono's systematic coldness pairs naturally with Neue Haas Grotesk — both rooted in the same functionalist tradition.",rules:["Monospace fonts impose the typewriter's legacy — every character occupies identical width, creating rhythmic texture","Designed for screen-first environments where type renders at small sizes under variable DPI","Use lighter weights for UI labels and data; reserve bold for emphasis only"],usage:"UI design systems, data interfaces, developer tooling, pricing tables, technical documentation, motion graphics captions.",accentColor:"#a3e635"},
+{name:"Pitch",tag:"Monospace Editorial",trend:"↑ Rising",trendColor:"#a78bfa",classification:"MONOSPACE SERIF — DISPLAY & TEXT",desc:"Klim's editorial monospace. Not a code font — a typeface that uses the constraint of fixed-width spacing to create distinctive rhythm and texture. Enormous in motion graphics and title design.",specimen:{display:"Pitch",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Canela",role:"DISPLAY CONTRAST"},{name:"GT Sectra",role:"EDITORIAL BODY"}],pairNote:"Pitch against a warm display serif creates maximum typographic tension — the mechanical precision of fixed-width against the organic warmth of a humanist serif.",rules:["Monospaced typefaces create uniform texture — every character occupies identical horizontal space","Pitch was designed to overcome the awkwardness of fixed-width spacing through careful optical compensation","Powerful as a display face in motion contexts — the fixed rhythm creates a visual pulse that animates naturally"],usage:"Motion graphics, title design, film and streaming credits, entertainment branding, editorial mastheads.",accentColor:"#a78bfa"},
+{name:"Druk",tag:"Condensed Impact",trend:"↑ Dominant",trendColor:"#ef4444",classification:"DISPLAY SANS — BOLD CONDENSED",desc:"Berton Hasebe's definitive bold condensed grotesque for Commercial Type. Originally commissioned for Bloomberg Businessweek. Draws from Barbara Kruger, Willem Sandberg, and 19th century wood type tradition.",specimen:{display:"Druk",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Canela",role:"EDITORIAL CONTRAST"},{name:"GT Sectra",role:"BODY / COLUMN"}],pairNote:"Druk's compressed mass against Canela's organic warmth is the defining editorial contrast of the moment — brutal headline, elegant body.",rules:["Flat optical surfaces enable extremely clean stacking — display type set in tight grids demands letterforms with no apologies","Tight tracking is essential — Druk was designed for close-set headlines; generous tracking dilutes its authority","The weight range from Wide to Condensed is enormous — choose the variant that serves the space"],usage:"Bloomberg Businessweek, entertainment and sports branding, gaming titles, festival identity, music media.",accentColor:"#ef4444"},
+{name:"GT Ultra",tag:"Variable Expressionist",trend:"↑ Breakout",trendColor:"#f97316",classification:"VARIABLE SANS — DISPLAY & TEXT",desc:"Grilli Type's most expressive type family. Spans hairline elegance to ultra-black mass within a single variable font — a range no static family can match.",specimen:{display:"Ultra",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"GT Sectra",role:"BODY / EDITORIAL"},{name:"Tiempos",role:"LONG-FORM TEXT"}],pairNote:"GT Ultra and GT Sectra share foundry DNA — both from Grilli Type. Using the ultra-black cut against GT Sectra body text is a systems-thinking pairing with genuine coherence.",rules:["Variable fonts span what once required an entire type family in a single file — technically and conceptually significant","The ultra-black cuts demand restraint — one word at ultra-black has more presence than a page of bold","The optical transition across the weight axis is carefully tuned — letterforms adapt their proportions as weight increases"],usage:"Cultural institutions, entertainment branding, music and festival identity, streaming platform title design.",accentColor:"#f97316"},
+{name:"Obviously",tag:"Wide Bold Statement",trend:"↑ Rising",trendColor:"#84cc16",classification:"DISPLAY SANS — WIDE BOLD EXPRESSIVE",desc:"Oh No Type Co.'s bold and wide display sans, inspired by handpainted signage, vinyl lettering, and billboards. Purpose-built for unsubtle communication — 96 styles, unapologetically expressive.",specimen:{display:"Obvious",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Signifier",role:"EDITORIAL CONTRAST"},{name:"Freight Display",role:"CINEMATIC BODY"}],pairNote:"Obviously's wide, populist energy against Signifier's literary austerity creates genuine typographic tension — the vernacular meets the scholarly.",rules:["Vernacular type traditions — signpainting, vinyl lettering — carry equal cultural weight to formal typography","The wide variants are the core of the family's character","Works at any scale but earns its place at large sizes"],usage:"Independent design studios, music branding, streetwear and apparel, entertainment campaigns, poster and event design.",accentColor:"#84cc16"},
+{name:"Tusker Grotesk",tag:"Engineered Impact",trend:"↑ Rising",trendColor:"#38bdf8",classification:"DISPLAY SANS — BOLD MULTI-WIDTH",desc:"Lewis McGuffie's headline grotesque for Commercial Type. Nine widths, four weights, all duplexed — changing weight never shifts line length. Built for systematic design thinking.",specimen:{display:"Tusker",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Canela",role:"EDITORIAL CONTRAST"},{name:"Graphik",role:"BODY / CAPTION"}],pairNote:"Tusker and Canela are both Commercial Type — foundry coherence that runs deeper than aesthetics.",rules:["Duplexed widths mean swapping weights never causes reflow — a systems-design decision","The x-height is deliberately extreme across all widths — creates visual density without shouting","Nine widths means one face can handle every column width in a publication system"],usage:"Entertainment and gaming title design, sports branding, festival and event identity, editorial mastheads.",accentColor:"#38bdf8"},
+{name:"Monument Extended",tag:"Extended Display",trend:"↑ Breakout",trendColor:"#f43f5e",classification:"DISPLAY SANS -- WIDE EXTENDED BOLD",desc:"Pangram Pangram's wide, heavy, extended display grotesque. Dominant in streetwear, music, gaming, and entertainment branding. Occupies different territory from Druk's condensed authority or Obviously's vernacular width -- Monument Extended is pure architectural mass.",specimen:{display:"Monument",body:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."},pairs:[{name:"Cormorant Garamond",role:"EDITORIAL CONTRAST"},{name:"Tiempos",role:"BODY / LONGFORM"}],pairNote:"Monument Extended's architectural mass against Cormorant Garamond's historical elegance creates extreme typographic tension -- industrial scale meets 16th century refinement. A bold editorial statement.",rules:["Extended grotesques carry different cultural weight than condensed ones -- where Druk compresses for impact, Monument expands for presence","Bringhurst would classify this in the tradition of 19th century wood type -- large, bold, demanding attention at distance","Works at very large sizes only -- below 36pt it loses the extended proportion that defines its character"],usage:"Streetwear brands, music labels, gaming titles, entertainment campaigns, festival and event identity. Any brand that needs to own physical space.",accentColor:"#f43f5e"},
+];
+
+let active=0;
+function gf(n){return fontMap[n]||"'BerkeleyMono',monospace";}
+
+function render(){
+  const f=faces[active],ff=gf(f.name);
+  document.getElementById('bl-nav').innerHTML=
+    faces.map((face,i)=>`<button class="bl-nav-btn ${i===active?'active':''}" style="font-family:${gf(face.name)}" onclick="setActive(${i})">${face.name}</button>`).join('')+
+    `<button class="bl-nav-btn finder-btn" onclick="openFinder()">+ YOUR TYPE</button>`;
+
+  const b=document.getElementById('bl-badge');
+  b.textContent=f.trend;b.style.cssText=`color:${f.trendColor};background:${f.trendColor}18;border:1px solid ${f.trendColor}44;font-size:9px;letter-spacing:2px;padding:4px 10px;border-radius:2px;font-family:'BerkeleyMono',monospace;`;
+  document.getElementById('bl-tag').textContent=f.tag.toUpperCase();
+  const fn=document.getElementById('bl-face-name');fn.textContent=f.name;fn.style.fontFamily=ff;
+  document.getElementById('bl-class').textContent=f.classification;
+
+  document.getElementById('bl-desc').textContent=f.desc;
+  document.getElementById('bl-specimen').innerHTML=`<div><div class="bl-specimen-label">DISPLAY</div><div class="bl-specimen-display" style="font-family:${ff}">${f.specimen.display}</div></div><div><div class="bl-specimen-label">BODY TEXT</div><div class="bl-specimen-body" style="font-family:${ff}">${f.specimen.body}</div></div>`;
+  document.getElementById('bl-pair-chips').innerHTML=f.pairs.map(p=>`<div class="bl-pair-chip"><div class="bl-pair-chip-name" style="font-family:${gf(p.name)}">${p.name}</div><div class="bl-pair-chip-role">${p.role}</div></div>`).join('');
+  document.getElementById('bl-pair-note').textContent=f.pairNote;
+  document.getElementById('bl-pairing-panel').style.borderLeft=`3px solid ${f.trendColor}`;
+  document.getElementById('bl-rules').innerHTML=f.rules.map(r=>`<li>${r}</li>`).join('');
+  document.getElementById('bl-bringhurst-panel').style.borderLeft=`3px solid ${f.trendColor}`;
+  document.getElementById('bl-usage').textContent=f.usage;
+  document.getElementById('bl-usage-panel').style.borderLeft=`3px solid ${f.trendColor}`;
+  document.getElementById('bl-counter').textContent=`${active+1} / ${faces.length}`;
+}
+function setActive(i){active=i;render();}
+render();
+
+// — TYPE SYSTEM BUILDER —
+const defaultSystem = { display:'Canela', body:'Graphik', ui:'Geist Mono' };
+const system = { display:'Canela', body:'Graphik', ui:'Geist Mono' };
+let activeSlot = null;
+
+function getFaceByName(name){ return faces.find(f=>f.name===name); }
+
+const sizes={display:36,body:15,ui:9};
+
+function updateSize(slot,val){
+  sizes[slot]=parseInt(val);
+  document.getElementById('size-'+slot+'-val').textContent=val+'px';
+  const ids={display:'preview-display',body:'preview-body',ui:'preview-ui'};
+  const el=document.getElementById(ids[slot]);
+  if(el) el.style.fontSize=val+'px';
+}
+
+let previewDark=false;
+function togglePreviewDark(){
+  previewDark=!previewDark;
+  const preview=document.getElementById('bl-preview');
+  const btn=document.getElementById('bl-dark-btn');
+  preview.classList.toggle('dark', previewDark);
+  btn.classList.toggle('on', previewDark);
+}
+
+const licenseMap={
+  "Canela":{type:"paid",foundry:"Commercial Type"},
+  "Editorial New":{type:"paid",foundry:"Pangram Pangram"},
+  "GT Sectra":{type:"paid",foundry:"Grilli Type"},
+  "Tiempos":{type:"paid",foundry:"Klim Type"},
+  "Signifier":{type:"paid",foundry:"Klim Type"},
+  "Domaine Display":{type:"paid",foundry:"Klim Type"},
+  "Swear Display":{type:"paid",foundry:"Klim Type"},
+  "Freight Display":{type:"adobe",foundry:"Adobe Fonts"},
+  "Cormorant Garamond":{type:"free",foundry:"Google Fonts"},
+  "GT Alpina":{type:"paid",foundry:"Grilli Type"},
+  "Neue Haas Grotesk":{type:"paid",foundry:"Commercial Type"},
+  "Graphik":{type:"paid",foundry:"Commercial Type"},
+  "LL Unica77":{type:"paid",foundry:"Lineto"},
+  "Maison Neue":{type:"paid",foundry:"Milieu Grotesque"},
+  "PP Neue Montreal":{type:"paid",foundry:"Pangram Pangram"},
+  "Aperçu":{type:"paid",foundry:"Colophon Foundry"},
+  "GT America":{type:"paid",foundry:"Grilli Type"},
+  "Geist Mono":{type:"free",foundry:"Google Fonts"},
+  "Pitch":{type:"paid",foundry:"Klim Type"},
+  "Druk":{type:"paid",foundry:"Commercial Type"},
+  "GT Ultra":{type:"paid",foundry:"Grilli Type"},
+  "Obviously":{type:"paid",foundry:"Oh No Type Co."},
+  "Tusker Grotesk":{type:"paid",foundry:"Commercial Type"},
+  "Monument Extended":{type:"paid",foundry:"Pangram Pangram"},
+};
+
+function exportCSS(){
+  const css=`/* Bringhurst Lens — Type System */
+:root {
+  --font-display: '${system.display}';
+  --font-body: '${system.body}';
+  --font-ui: '${system.ui}';
+  --size-display: ${sizes.display}px;
+  --size-body: ${sizes.body}px;
+  --size-ui: ${sizes.ui}px;
+}
+
+.display-type {
+  font-family: var(--font-display);
+  font-size: var(--size-display);
+}
+
+.body-type {
+  font-family: var(--font-body);
+  font-size: var(--size-body);
+}
+
+.ui-type {
+  font-family: var(--font-ui);
+  font-size: var(--size-ui);
+}`;
+  navigator.clipboard.writeText(css).then(()=>{
+    const btn=document.getElementById('bl-export-btn');
+    btn.textContent='COPIED TO CLIPBOARD';
+    btn.classList.add('copied');
+    setTimeout(()=>{
+      btn.textContent='EXPORT CSS VARIABLES';
+      btn.classList.remove('copied');
+    },2000);
+  }).catch(()=>{
+    // Fallback
+    const ta=document.createElement('textarea');
+    ta.value=css;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn=document.getElementById('bl-export-btn');
+    btn.textContent='COPIED TO CLIPBOARD';
+    btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='EXPORT CSS VARIABLES'; btn.classList.remove('copied'); },2000);
+  });
+}
+
+const capsState={display:false,body:false,ui:false};
+
+function toggleCaps(e,slot){
+  e.stopPropagation(); // prevent slot picker from opening
+  capsState[slot]=!capsState[slot];
+  const btn=document.getElementById('caps-'+slot);
+  btn.classList.toggle('on',capsState[slot]);
+  updatePreviewCaps();
+}
+
+function updatePreviewCaps(){
+  const ids={display:'preview-display',body:'preview-body',ui:'preview-ui'};
+  Object.entries(capsState).forEach(([slot,on])=>{
+    const el=document.getElementById(ids[slot]);
+    if(el) el.style.textTransform=on?'uppercase':'none';
+  });
+}
+
+function updateBuilder(){
+  const df=getFaceByName(system.display);
+  const bf=getFaceByName(system.body);
+  const uf=getFaceByName(system.ui);
+
+  // Update slots
+  if(df){
+    document.getElementById('slot-display-name').textContent=df.name;
+    document.getElementById('slot-display-name').style.fontFamily=gf(df.name);
+    document.getElementById('slot-display-tag').textContent=df.tag;
+    document.getElementById('slot-display').style.borderColor=df.accentColor+'88';
+  }
+  if(bf){
+    document.getElementById('slot-body-name').textContent=bf.name;
+    document.getElementById('slot-body-name').style.fontFamily=gf(bf.name);
+    document.getElementById('slot-body-tag').textContent=bf.tag;
+    document.getElementById('slot-body').style.borderColor=bf.accentColor+'88';
+  }
+  if(uf){
+    document.getElementById('slot-ui-name').textContent=uf.name;
+    document.getElementById('slot-ui-name').style.fontFamily=gf(uf.name);
+    document.getElementById('slot-ui-tag').textContent=uf.tag;
+    document.getElementById('slot-ui').style.borderColor=uf.accentColor+'88';
+  }
+
+  // Update preview
+  const dp=document.getElementById('preview-display');
+  const bp=document.getElementById('preview-body');
+  const up=document.getElementById('preview-ui');
+  if(dp && df){ dp.style.fontFamily=gf(df.name); }
+  if(bp && bf){ bp.style.fontFamily=gf(bf.name); }
+  if(up && uf){ up.style.fontFamily=gf(uf.name); }
+}
+
+function resetBuilder(){
+  system.display=defaultSystem.display;
+  system.body=defaultSystem.body;
+  system.ui=defaultSystem.ui;
+  // Reset sizes
+  const defaults={display:36,body:15,ui:9};
+  Object.entries(defaults).forEach(([slot,val])=>{
+    sizes[slot]=val;
+    document.getElementById('slider-'+slot).value=val;
+    document.getElementById('size-'+slot+'-val').textContent=val+'px';
+    const ids={display:'preview-display',body:'preview-body',ui:'preview-ui'};
+    document.getElementById(ids[slot]).style.fontSize=val+'px';
+  });
+  // Reset text
+  document.getElementById('preview-display').textContent='The Quick Brown Fox';
+  document.getElementById('preview-body').textContent='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.';
+  document.getElementById('preview-ui').textContent='Label / Caption / UI Text';
+  // Reset caps
+  Object.keys(capsState).forEach(k=>{ capsState[k]=false; document.getElementById('caps-'+k).classList.remove('on'); });
+  updatePreviewCaps();
+  updateBuilder();
+}
+
+function openSlotPicker(slot){
+  activeSlot=slot;
+  const titles={display:'SELECT DISPLAY FACE',body:'SELECT BODY FACE',ui:'SELECT UI FACE'};
+  document.getElementById('slot-picker-title').textContent=titles[slot]||'SELECT FACE';
+  const grid=document.getElementById('slot-picker-grid');
+  grid.innerHTML=faces.map(f=>`
+    <div class="slot-picker-item ${system[slot]===f.name?'selected':''}" onclick="selectSlotFace('${f.name.replace(/'/g,"\'")}')">
+      <div class="slot-picker-item-name" style="font-family:${gf(f.name)}">${f.name}</div>
+      <div class="slot-picker-item-tag">${f.tag.toUpperCase()}</div>
+    </div>`).join('');
+  document.getElementById('slot-picker-overlay').classList.add('open');
+}
+
+function selectSlotFace(name){
+  if(activeSlot) system[activeSlot]=name;
+  closeSlotPicker();
+  updateBuilder();
+}
+
+function closeSlotPicker(){
+  document.getElementById('slot-picker-overlay').classList.remove('open');
+  activeSlot=null;
+}
+
+document.getElementById('slot-picker-overlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('slot-picker-overlay')) closeSlotPicker();
+});
+
+// Init builder
+updateBuilder();
+
+// — FINDER MODE —
+let finderMode='brief';
+
+function setFinderMode(mode){
+  finderMode=mode;
+  document.getElementById('mode-btn-keywords').classList.toggle('active', mode==='keywords');
+  document.getElementById('mode-btn-brief').classList.toggle('active', mode==='brief');
+  document.getElementById('finder-keywords-section').style.display=mode==='keywords'?'block':'none';
+  document.getElementById('finder-brief-section').style.display=mode==='brief'?'block':'none';
+  document.getElementById('finder-go').textContent=mode==='brief'?'FIND MY TYPE':'FIND TYPE';
+  updateFinderGoBtn();
+}
+
+function updateFinderGoBtn(){
+  const btn=document.getElementById('finder-go');
+  if(finderMode==='brief'){
+    const val=(document.getElementById('finder-brief-input').value||'').trim();
+    btn.disabled=val.length<10;
+  } else {
+    const any=Object.values(selections).some(v=>v!==null);
+    btn.disabled=!any;
+  }
+}
+
+document.getElementById('finder-brief-input').addEventListener('input', updateFinderGoBtn);
+
+// — FINDER —
+const selections={feeling:null,context:null,weight:null};
+
+document.querySelectorAll('.finder-chip').forEach(chip=>{
+  chip.addEventListener('click',()=>{
+    const group=chip.dataset.group;
+    const val=chip.dataset.val;
+    // deselect others in same group
+    document.querySelectorAll(`.finder-chip[data-group="${group}"]`).forEach(c=>c.classList.remove('selected'));
+    if(selections[group]===val){
+      selections[group]=null;
+    } else {
+      chip.classList.add('selected');
+      selections[group]=val;
+    }
+    // enable button if at least one selection
+    const any=Object.values(selections).some(v=>v!==null);
+    document.getElementById('finder-go').disabled=!any;
+  });
+});
+
+function openFinder(){
+  document.getElementById('finder-overlay').classList.add('open');
+}
+function closeFinder(){
+  document.getElementById('finder-overlay').classList.remove('open');
+}
+document.getElementById('finder-overlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('finder-overlay')) closeFinder();
+});
+
+async function runFinder(){
+  const resultsEl=document.getElementById('finder-results');
+  const innerEl=document.getElementById('finder-results-inner');
+  resultsEl.classList.add('open');
+  innerEl.innerHTML='<div class="finder-loading">Analysing your brief<span>...</span></div>';
+
+  const facesSummary=faces.map(f=>f.name+'|'+f.tag+'|'+f.classification).join('\n');
+  const pairNames=faces.map(f=>f.name+'|'+f.pairs.map(p=>p.name).join(',')).join(';');
+
+  let prompt;
+  if(finderMode==='brief'){
+    const brief=(document.getElementById('finder-brief-input').value||'').trim();
+    prompt='A designer describes their project: "'+brief+'"\n\nFrom this typeface list, select the best Display face, Body face, and UI face for a complete type system. Also pick 2 additional strong individual matches. For each face write 1-2 plain sentences of rationale and suggest a pairing. No em dashes, no apostrophes.\n\nTypefaces:\n'+facesSummary+'\n\nAvailable pairings (face|pair1,pair2):\n'+pairNames+'\n\nReturn ONLY a JSON object, no markdown:\n{"system":{"display":"exact name","body":"exact name","ui":"exact name"},"recommendations":[{"name":"exact name","rationale":"reasoning","pairing":"exact pair name","pairingRole":"role"},{"name":"exact name","rationale":"reasoning","pairing":"exact pair name","pairingRole":"role"},{"name":"exact name","rationale":"reasoning","pairing":"exact pair name","pairingRole":"role"}]}';
+  } else {
+    const keywords=Object.entries(selections).filter(([,v])=>v).map(([k,v])=>k+': '+v).join(', ');
+    prompt='A designer brief: '+keywords+'.\n\nFrom this typeface list, select the best Display face, Body face, and UI face for a complete type system. Also pick 2 additional strong individual matches. For each face write 1-2 plain sentences of rationale and suggest a pairing. No em dashes, no apostrophes.\n\nTypefaces:\n'+facesSummary+'\n\nAvailable pairings (face|pair1,pair2):\n'+pairNames+'\n\nReturn ONLY a JSON object, no markdown:\n{"system":{"display":"exact name","body":"exact name","ui":"exact name"},"recommendations":[{"name":"exact name","rationale":"reasoning","pairing":"exact pair name","pairingRole":"role"},{"name":"exact name","rationale":"reasoning","pairing":"exact pair name","pairingRole":"role"},{"name":"exact name","rationale":"reasoning","pairing":"exact pair name","pairingRole":"role"}]}';
+  }
+
+  try {
+    const res=await fetch('https://wada-lens-proxy.nick-adb.workers.dev',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:1000,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+
+    if(!res.ok){
+      const errText=await res.text();
+      throw new Error('HTTP '+res.status+': '+errText);
+    }
+
+    const data=await res.json();
+
+    if(!data.content||!data.content[0]||!data.content[0].text){
+      throw new Error('Unexpected response: '+JSON.stringify(data));
+    }
+
+    let raw=data.content[0].text.trim();
+    raw=raw.replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/\s*```$/,'').trim();
+    const objMatch=raw.match(/\{[\s\S]*\}/);
+    if(objMatch) raw=objMatch[0];
+    raw=raw.replace(/[\u2018\u2019]/g,"'").replace(/[\u201C\u201D]/g,'"').replace(/\u2014/g,'-').replace(/\u2013/g,'-');
+
+    const parsed=JSON.parse(raw);
+
+    // Populate system builder if system was returned
+    if(parsed.system){
+      if(parsed.system.display && getFaceByName(parsed.system.display)) system.display=parsed.system.display;
+      if(parsed.system.body && getFaceByName(parsed.system.body)) system.body=parsed.system.body;
+      if(parsed.system.ui && getFaceByName(parsed.system.ui)) system.ui=parsed.system.ui;
+      updateBuilder();
+      // Scroll to builder
+      document.getElementById('bl-builder').scrollIntoView({behavior:'smooth',block:'start'});
+    }
+
+    const recs=parsed.recommendations||parsed;
+
+    // Show system summary at top of results
+    let systemHtml='';
+    if(parsed.system){
+      const df=getFaceByName(parsed.system.display);
+      const bf=getFaceByName(parsed.system.body);
+      const uf=getFaceByName(parsed.system.ui);
+      systemHtml='<div style="background:#111;border:1px solid #1c1c1c;border-radius:4px;padding:16px;margin-bottom:16px">'
+        +'<div style="font-size:9px;letter-spacing:3px;color:#444;margin-bottom:12px;font-family:BerkeleyMono,monospace">SYSTEM BUILT</div>'
+        +'<div style="display:flex;gap:10px">'
+        +(df?'<div style="flex:1;text-align:center"><div style="font-size:9px;color:#444;letter-spacing:2px;font-family:BerkeleyMono,monospace;margin-bottom:4px">DISPLAY</div><div style="font-size:14px;font-family:'+gf(df.name)+';color:'+df.accentColor+'">'+df.name+'</div></div>':'')
+        +(bf?'<div style="flex:1;text-align:center"><div style="font-size:9px;color:#444;letter-spacing:2px;font-family:BerkeleyMono,monospace;margin-bottom:4px">BODY</div><div style="font-size:14px;font-family:'+gf(bf.name)+';color:'+bf.accentColor+'">'+bf.name+'</div></div>':'')
+        +(uf?'<div style="flex:1;text-align:center"><div style="font-size:9px;color:#444;letter-spacing:2px;font-family:BerkeleyMono,monospace;margin-bottom:4px">UI</div><div style="font-size:14px;font-family:'+gf(uf.name)+';color:'+uf.accentColor+'">'+uf.name+'</div></div>':'')
+        +'</div>'
+        +'<div style="font-size:9px;color:#333;letter-spacing:1px;font-family:BerkeleyMono,monospace;margin-top:10px;text-align:center">LOADED INTO SYSTEM BUILDER</div>'
+        +'</div>';
+    }
+
+    const cards=recs.map((rec,i)=>{
+      const face=faces.find(f=>f.name===rec.name);
+      if(!face) return '';
+      const ff=gf(face.name);
+      const pairingFace=faces.find(f=>f.name===rec.pairing);
+      const pairingFont=pairingFace?gf(pairingFace.name):"'BerkeleyMono',monospace";
+      const pairingHtml=rec.pairing
+        ?'<div style="margin-top:14px;padding-top:14px;border-top:1px solid #1a1a1a">'
+          +'<div style="font-size:9px;letter-spacing:3px;color:#444;margin-bottom:10px;font-family:BerkeleyMono,monospace">SUGGESTED PAIRING</div>'
+          +'<div style="display:flex;gap:10px">'
+            +'<div style="flex:1;background:#0f0f0f;border:1px solid #1c1c1c;border-radius:3px;padding:12px">'
+              +'<div style="font-size:16px;color:'+face.trendColor+';font-family:'+ff+';margin-bottom:4px">'+face.name+'</div>'
+              +'<div style="font-size:9px;color:#444;letter-spacing:2px;font-family:BerkeleyMono,monospace">DISPLAY</div>'
+            +'</div>'
+            +'<div style="flex:1;background:#0f0f0f;border:1px solid #1c1c1c;border-radius:3px;padding:12px">'
+              +'<div style="font-size:16px;color:#ccc;font-family:'+pairingFont+';margin-bottom:4px">'+rec.pairing+'</div>'
+              +'<div style="font-size:9px;color:#444;letter-spacing:2px;font-family:BerkeleyMono,monospace">'+(rec.pairingRole||'BODY')+'</div>'
+            +'</div>'
+          +'</div>'
+        +'</div>'
+        :'';
+      return '<div class="finder-result-card" onclick="selectFromFinder('+faces.indexOf(face)+')">'
+        +'<div class="finder-result-rank">0'+(i+1)+' — MATCH</div>'
+        +'<div class="finder-result-name" style="font-family:'+ff+'">'+face.name+'</div>'
+        +'<span class="finder-result-tag" style="color:'+face.trendColor+';background:'+face.trendColor+'18;border:1px solid '+face.trendColor+'44">'+face.tag.toUpperCase()+'</span>'
+        +'<div class="finder-result-rationale">'+rec.rationale+'</div>'
+        +pairingHtml
+        +'<div class="finder-result-hint">CLICK TO VIEW IN LENS</div>'
+        +'</div>';
+    }).join('');
+
+    innerEl.innerHTML=systemHtml+(cards||'<div class="finder-loading" style="color:#f87171">No matches found.</div>');
+
+  } catch(err){
+    console.error('Finder error:',err);
+    const isOverloaded=err.message&&err.message.includes('overloaded');
+    const msg=isOverloaded?'API is busy right now. Wait a moment and try again.':'Something went wrong: '+err.message;
+    innerEl.innerHTML='<div class="finder-loading" style="color:#f87171">'+msg+'</div>'
+      +'<div style="margin-top:12px"><button class="finder-go" onclick="runFinder()" style="display:inline-block">TRY AGAIN</button></div>';
+  }
+}
+
+function selectFromFinder(i){
+  closeFinder();
+  setActive(i);
+}
+
+// Auto-resize for iframe embedding
+function sendHeight() {
+  var height = document.documentElement.scrollHeight;
+  window.parent.postMessage({ type: 'resize', height: height }, '*');
+}
+window.addEventListener('load', sendHeight);
+setInterval(sendHeight, 1000);
+</script>
+</body>
+</html>
